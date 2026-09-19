@@ -1,0 +1,178 @@
+@import "tailwindcss";
+
+/*
+ * shadcn/ui preset b5owpMwmu0 (base: radix)
+ * style: luma · base color: olive · theme: orange · charts: amber · radius: default
+ * body: Figtree · headings: Oxanium · icons: phosphor
+ * Values carried over verbatim from the Claude Design handoff (design/project/ds/shadcn.css).
+ */
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: #fff;
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-app: var(--app);
+  --color-sidebar: var(--sidebar);
+  --color-ok: var(--ok);
+  --color-ok-tint: var(--ok-tint);
+  --color-ok-tint-border: var(--ok-tint-border);
+  --color-destructive-tint: var(--destructive-tint);
+  --color-destructive-tint-border: var(--destructive-tint-border);
+  --color-destructive-ink: var(--destructive-ink);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-5: var(--chart-5);
+
+  --radius-card: var(--radius-card);
+  --radius-pill: var(--radius-pill);
+  --radius-input: var(--radius-input);
+  --radius-alert: var(--radius-alert);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --font-sans: var(--font-figtree), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-oxanium), var(--font-figtree), ui-sans-serif, sans-serif;
+
+  --animate-sc-in: sc-in 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.05);
+  --animate-sc-fade: sc-fade 0.18s ease;
+  --animate-sc-ping: sc-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.153 0.006 107.1);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.153 0.006 107.1);
+  --popover: oklch(1 0 0);
+  /* olive base: the app ground and rails carry the base tint */
+  --app: oklch(0.975 0.005 106.8);
+  --primary: oklch(0.553 0.195 38.402);
+  --primary-foreground: oklch(0.98 0.016 73.684);
+  --secondary: oklch(0.966 0.005 106.5);
+  --secondary-foreground: oklch(0.228 0.013 107.4);
+  --muted: oklch(0.966 0.005 106.5);
+  --muted-foreground: oklch(0.58 0.031 107.3);
+  --accent: oklch(0.966 0.005 106.5);
+  --accent-foreground: oklch(0.228 0.013 107.4);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.93 0.007 106.5);
+  --input: oklch(0.93 0.007 106.5);
+  --ring: oklch(0.737 0.021 106.9);
+  --chart-1: oklch(0.879 0.169 91.605);
+  --chart-2: oklch(0.769 0.188 70.08);
+  --chart-3: oklch(0.666 0.179 58.318);
+  --chart-5: oklch(0.473 0.137 46.201);
+  /* calm olive ink for the "normal" state, so only real alerts read red/amber */
+  /* status: green normal, red low water */
+  --ok: oklch(0.527 0.154 150.069);
+  --ok-tint: oklch(0.962 0.044 156.743);
+  --ok-tint-border: oklch(0.925 0.084 155.995);
+  --sidebar: oklch(0.988 0.003 106.5);
+  --radius: 0.625rem;
+
+  /* derived surfaces */
+  --input-50: color-mix(in oklab, var(--input) 50%, transparent);
+  --destructive-tint: oklch(0.945 0.038 25);
+  --destructive-tint-border: oklch(0.885 0.072 25);
+  --destructive-ink: oklch(0.495 0.196 27.3);
+
+  /* luma geometry */
+  --radius-card: 2rem;
+  --radius-pill: 2rem;
+  --radius-input: 1.5rem;
+  --radius-alert: 1rem;
+  --ring-hairline: 0 0 0 1px color-mix(in oklab, var(--foreground) 5%, transparent);
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0;
+  line-height: 1.2;
+}
+
+button {
+  font-family: inherit;
+}
+button:active {
+  transform: translateY(1px);
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 30%, transparent);
+}
+
+.ring-hairline {
+  box-shadow: var(--ring-hairline);
+}
+
+@keyframes sc-in {
+  from {
+    transform: translateY(-120%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes sc-fade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes sc-ping {
+  0% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(2.2);
+  }
+}
