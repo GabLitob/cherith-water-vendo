@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="stylesheet" href="ds/styles.css">
+<style>
+body{margin:0;background:#e4d7bf}
+a{color:var(--color-accent);text-decoration:none}
+a:hover{color:var(--color-accent-700)}
+@keyframes bcIn{from{transform:translateY(-130%);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes bcFade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes bcPulse{0%,100%{opacity:.35;transform:scale(1)}50%{opacity:0;transform:scale(2.1)}}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;justify-content:center;background:#e4d7bf">
+<div style="position:relative;width:100%;max-width:420px;min-height:880px;background:var(--color-bg);overflow:hidden;display:flex;flex-direction:column;box-shadow:0 12px 32px rgba(46,43,37,.22)">
+
+<div style="display:flex;align-items:center;justify-content:space-between;padding:10px var(--space-4) 2px;font-size:12px;font-weight:600;color:color-mix(in srgb, var(--color-text) 55%, transparent)">
+<span>{{ clock }}</span>
+<span style="display:flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:50%;background:var(--color-accent-2-600)"></span>live sensor feed</span>
+</div>
+
+<sc-if value="{{ isLogin }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:var(--space-8) var(--space-6) 64px;gap:var(--space-4)">
+<div style="width:64px;height:64px;border-radius:50%;background:var(--color-accent);display:flex;align-items:center;justify-content:center;margin-bottom:var(--space-2)">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#f5ead8" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"></path></svg>
+</div>
+<h1 style="font-size:44px;margin:0">Brook Cherith</h1>
+<p class="text-muted" style="margin:0 0 var(--space-4);font-size:15px;max-width:15em">Water machine monitoring. Know when a machine runs dry, before your customers do.</p>
+<div class="field"><label>Email</label><input class="input" style="border-radius:999px;min-height:44px;padding:8px 16px" value="owner@brookcherith.ph" readonly="readonly"></div>
+<div class="field"><label>Password</label><input class="input" type="password" style="border-radius:999px;min-height:44px;padding:8px 16px" value="chrthwtr" readonly="readonly"></div>
+<button class="btn btn-primary btn-block" style="border-radius:999px;min-height:48px;font-size:16px;margin-top:var(--space-3)" onClick="{{ signIn }}">Sign in</button>
+<p class="text-muted" style="margin:0;font-size:12px;text-align:center">Owner access · 8 machines registered</p>
+</div>
+</sc-if>
+
+<sc-if value="{{ isDash }}" hint-placeholder-val="{{ true }}">
+<div style="flex:1;overflow:auto;padding:var(--space-3) var(--space-4) 96px">
+<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:var(--space-3)">
+<div>
+<h1 style="font-size:34px;margin:0 0 2px">Machines</h1>
+<p class="text-muted" style="margin:0;font-size:13px">{{ siteLine }}</p>
+</div>
+<button class="btn btn-icon" style="border-radius:50%;background:var(--color-surface);position:relative" onClick="{{ goAlerts }}" aria-label="Alerts">
+<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>
+<sc-if value="{{ hasActive }}" hint-placeholder-val="{{ false }}">
+<span style="position:absolute;top:-2px;right:-2px;min-width:18px;height:18px;border-radius:999px;background:var(--color-accent);color:var(--color-bg);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid var(--color-bg)">{{ activeCount }}</span>
+</sc-if>
+</button>
+</div>
+
+<div style="margin:var(--space-4) 0;padding:var(--space-4);border-radius:var(--radius-lg);background:var(--color-surface);display:flex;align-items:center;gap:var(--space-4)">
+<div style="flex:1">
+<div style="display:flex;align-items:baseline;gap:8px"><span style="font-family:var(--font-heading);font-size:38px;line-height:1;color:var(--color-accent-2-700)">{{ normalCount }}</span><span style="font-size:13px;font-weight:600">Normal</span></div>
+<div style="height:1px;background:var(--color-divider);margin:var(--space-3) 0"></div>
+<div style="display:flex;align-items:baseline;gap:8px"><span style="font-family:var(--font-heading);font-size:38px;line-height:1;color:var(--color-accent-700)">{{ lowCount }}</span><span style="font-size:13px;font-weight:600">Need attention</span></div>
+</div>
+<div style="width:96px;height:96px;flex:none;border-radius:50%;background:var(--color-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px">
+<span style="font-family:var(--font-heading);font-size:30px;line-height:1">8</span>
+<span class="text-muted" style="font-size:11px;letter-spacing:.06em;text-transform:uppercase">machines</span>
+</div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)">
+<sc-for list="{{ machines }}" as="m" hint-placeholder-count="8">
+<button style="{{ m.tile }}" onClick="{{ m.open }}">
+<div style="display:flex;align-items:center;justify-content:space-between">
+<span style="font-family:var(--font-heading);font-size:22px;line-height:1">{{ m.short }}</span>
+<span style="{{ m.dotWrap }}"><span style="{{ m.dot }}"></span></span>
+</div>
+<div style="{{ m.tag }}">{{ m.status }}</div>
+<div class="text-muted" style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600">
+<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0z"></path></svg>
+{{ m.tempLabel }}
+</div>
+</button>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isDetail }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;overflow:auto;padding:var(--space-3) var(--space-4) 96px">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-4)">
+<button class="btn btn-icon" style="border-radius:50%;background:var(--color-surface)" onClick="{{ goDash }}" aria-label="Back">
+<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg>
+</button>
+<button class="btn btn-icon" style="border-radius:50%;background:var(--color-surface)" onClick="{{ goSettings }}" aria-label="Configure">
+<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10"></path><path d="M18 7h2"></path><path d="M4 17h4"></path><path d="M12 17h8"></path><circle cx="16" cy="7" r="2"></circle><circle cx="10" cy="17" r="2"></circle></svg>
+</button>
+</div>
+<h1 style="font-size:34px;margin:0 0 2px">{{ sel.name }}</h1>
+<p class="text-muted" style="margin:0 0 var(--space-4);font-size:13px">{{ sel.location }}</p>
+
+<div style="{{ sel.panel }}">
+<div style="display:flex;align-items:center;gap:var(--space-3)">
+<span style="{{ sel.panelIcon }}">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"></path></svg>
+</span>
+<div>
+<div style="font-family:var(--font-heading);font-size:25px;line-height:1.1">{{ sel.status }}</div>
+<div style="font-size:13px;font-weight:700">{{ sel.statusNote }}</div>
+</div>
+</div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3);margin-bottom:var(--space-6)">
+<div style="padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);background:var(--color-surface)">
+<div class="text-muted" style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">Temperature</div>
+<div style="font-family:var(--font-heading);font-size:22px">{{ sel.tempLabel }}</div>
+</div>
+<div style="padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);background:var(--color-surface)">
+<div class="text-muted" style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">Last updated</div>
+<div style="font-family:var(--font-heading);font-size:22px">{{ sel.updated }}</div>
+</div>
+</div>
+
+<h4 style="margin:0 0 var(--space-3)">History</h4>
+<sc-for list="{{ sel.history }}" as="g" hint-placeholder-count="2">
+<div style="margin-bottom:var(--space-4)">
+<div class="text-muted" style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:var(--space-2)">{{ g.day }}</div>
+<sc-for list="{{ g.items }}" as="e" hint-placeholder-count="2">
+<div style="display:flex;align-items:center;gap:var(--space-3);padding:var(--space-2) 0">
+<span style="{{ e.dot }}"></span>
+<span style="font-size:14px;font-weight:600;flex:1">{{ e.label }}</span>
+<span class="text-muted" style="font-size:12px;font-variant-numeric:tabular-nums">{{ e.time }}</span>
+</div>
+</sc-for>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{ isSettingsList }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;overflow:auto;padding:var(--space-3) var(--space-4) 96px">
+<h1 style="font-size:34px;margin:0 0 2px">Settings</h1>
+<p class="text-muted" style="margin:0 0 var(--space-6);font-size:13px">8 registered machines · owner@brookcherith.ph</p>
+<div class="text-muted" style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:var(--space-3)">Machines</div>
+<div style="display:flex;flex-direction:column;gap:var(--space-2)">
+<sc-for list="{{ machines }}" as="m" hint-placeholder-count="8">
+<button style="{{ m.row }}" onClick="{{ m.configure }}">
+<span style="width:34px;height:34px;flex:none;border-radius:50%;background:var(--color-bg);display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-size:14px">{{ m.short }}</span>
+<span style="flex:1;min-width:0;text-align:left">
+<span style="display:block;font-size:14px;font-weight:700">{{ m.name }}</span>
+<span class="text-muted" style="display:block;font-size:12px">{{ m.location }} · reminder {{ m.reminderLabel }}</span>
+</span>
+<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5"><path d="m9 18 6-6-6-6"></path></svg>
+</button>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;overflow:auto;padding:var(--space-3) var(--space-4) 96px">
+<button class="btn btn-icon" style="border-radius:50%;background:var(--color-surface);margin-bottom:var(--space-4)" onClick="{{ backFromSettings }}" aria-label="Back">
+<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg>
+</button>
+<h1 style="font-size:34px;margin:0 0 2px">Configure</h1>
+<p class="text-muted" style="margin:0 0 var(--space-6);font-size:13px">{{ sel.name }} · registered device</p>
+<div class="field" style="margin-bottom:var(--space-4)"><label>Machine name</label>
+<input class="input" style="border-radius:999px;min-height:44px;padding:8px 16px" value="{{ form.name }}" onChange="{{ setName }}">
+</div>
+<div class="field" style="margin-bottom:var(--space-6)"><label>Location</label>
+<input class="input" style="border-radius:999px;min-height:44px;padding:8px 16px" value="{{ form.location }}" onChange="{{ setLocation }}">
+</div>
+<div class="field"><label>Remind me again after</label></div>
+<div style="display:flex;gap:var(--space-2);margin-bottom:var(--space-6)">
+<sc-for list="{{ reminderOpts }}" as="r" hint-placeholder-count="3">
+<button style="{{ r.style }}" onClick="{{ r.pick }}">{{ r.label }}</button>
+</sc-for>
+</div>
+<p class="text-muted" style="font-size:13px;margin:0 0 var(--space-6)">When you choose <em>Remind me later</em> on a low-water alert, Brook Cherith notifies you again after this interval — unless the machine reports water restored first.</p>
+<button class="btn btn-primary btn-block" style="border-radius:999px;min-height:48px;font-size:16px" onClick="{{ save }}">Save changes</button>
+</div>
+</sc-if>
+
+<sc-if value="{{ isAlerts }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;overflow:auto;padding:var(--space-3) var(--space-4) 96px">
+<button class="btn btn-icon" style="border-radius:50%;background:var(--color-surface);margin-bottom:var(--space-4)" onClick="{{ goDash }}" aria-label="Back">
+<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg>
+</button>
+<h1 style="font-size:34px;margin:0 0 2px">Alerts</h1>
+<p class="text-muted" style="margin:0 0 var(--space-4);font-size:13px">{{ alertsLine }}</p>
+<sc-if value="{{ noAlerts }}" hint-placeholder-val="{{ false }}">
+<div style="padding:var(--space-8) var(--space-4);border-radius:var(--radius-lg);background:var(--color-surface);text-align:center">
+<div style="font-family:var(--font-heading);font-size:20px;margin-bottom:4px">All machines normal</div>
+<p class="text-muted" style="margin:0;font-size:13px">Low-water alerts appear here as the sensors report them.</p>
+</div>
+</sc-if>
+<sc-for list="{{ alerts }}" as="a" hint-placeholder-count="3">
+<div style="{{ a.card }}">
+<div style="display:flex;align-items:center;gap:var(--space-2);margin-bottom:6px">
+<span style="{{ a.dot }}"></span>
+<span style="font-family:var(--font-heading);font-size:18px;flex:1">{{ a.title }}</span>
+<span class="text-muted" style="font-size:12px;font-variant-numeric:tabular-nums">{{ a.time }}</span>
+</div>
+<div style="font-size:13px;font-weight:600;margin-left:18px;opacity:.8">{{ a.note }}</div>
+<sc-if value="{{ a.live }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;gap:var(--space-2);margin:var(--space-3) 0 0 18px">
+<button class="btn btn-primary" style="border-radius:999px;font-size:13px" onClick="{{ a.ack }}">Acknowledge</button>
+<button class="btn btn-secondary" style="border-radius:999px;font-size:13px" onClick="{{ a.snooze }}">Remind me later</button>
+</div>
+</sc-if>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{ showNav }}" hint-placeholder-val="{{ true }}">
+<div style="position:absolute;left:0;right:0;bottom:0;display:flex;gap:var(--space-2);padding:var(--space-3) var(--space-4) var(--space-4);background:linear-gradient(to top, var(--color-bg) 70%, transparent)">
+<button style="{{ navMachines }}" onClick="{{ goDash }}">Machines</button>
+<button style="{{ navAlerts }}" onClick="{{ goAlerts }}">Alerts {{ alertsBadge }}</button>
+<button style="{{ navSettings }}" onClick="{{ goSettingsList }}">Settings</button>
+</div>
+</sc-if>
+
+<sc-if value="{{ banner }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:var(--space-3);left:var(--space-3);right:var(--space-3);padding:var(--space-4);border-radius:var(--radius-lg);background:var(--color-neutral-900);color:var(--color-neutral-100);box-shadow:var(--shadow-lg);animation:bcIn .34s cubic-bezier(.2,.9,.3,1.1);z-index:20">
+<div style="display:flex;align-items:flex-start;gap:var(--space-3)">
+<span style="position:relative;width:34px;height:34px;flex:none;border-radius:50%;background:var(--color-accent);display:flex;align-items:center;justify-content:center;color:var(--color-neutral-900)">
+<span style="position:absolute;inset:0;border-radius:50%;background:var(--color-accent);animation:bcPulse 1.8s ease-out infinite"></span>
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"></path></svg>
+</span>
+<div style="flex:1;min-width:0">
+<div style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;opacity:.6;margin-bottom:2px">Brook Cherith</div>
+<div style="font-family:var(--font-heading);font-size:19px;line-height:1.15">{{ banner.title }}</div>
+<div style="font-size:13px;font-weight:600;opacity:.75">{{ banner.note }}</div>
+</div>
+</div>
+<div style="display:flex;gap:var(--space-2);margin-top:var(--space-3)">
+<button class="btn" style="flex:1;border-radius:999px;background:var(--color-neutral-100);color:var(--color-neutral-900);min-height:40px" onClick="{{ banner.ack }}">Acknowledge</button>
+<button class="btn" style="flex:1;border-radius:999px;border-color:color-mix(in srgb, #f9f4ed 35%, transparent);color:var(--color-neutral-100);min-height:40px" onClick="{{ banner.snooze }}">Remind me later</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;left:var(--space-4);right:var(--space-4);bottom:84px;padding:var(--space-3) var(--space-4);border-radius:999px;background:var(--color-accent-2-700);color:var(--color-neutral-100);font-size:13px;font-weight:600;text-align:center;animation:bcFade .2s ease;z-index:15">{{ toast }}</div>
+</sc-if>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:420,&quot;height&quot;:880},&quot;simSpeed&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1,&quot;min&quot;:0.5,&quot;max&quot;:3,&quot;step&quot;:0.5,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Simulation&quot;},&quot;startScreen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;login&quot;,&quot;options&quot;:[&quot;login&quot;,&quot;dashboard&quot;,&quot;alerts&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Simulation&quot;},&quot;fahrenheit&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Display&quot;}}">
+const SAGE = '#56633f', TERRA = '#8c491a';
+const SEED = [
+  ['Machine #1', 'School Building A', 8.1],
+  ['Machine #2', 'School Building B', 7.4],
+  ['Machine #3', 'Canteen Annex', 8.0],
+  ['Machine #4', 'Gym Lobby', 9.2],
+  ['Machine #5', 'Library Wing', 8.3],
+  ['Machine #6', 'Admin Wing', 7.8],
+  ['Machine #7', 'Covered Court', 8.6],
+  ['Machine #8', 'Building C Hall', 7.2]
+];
+const SCRIPT = [
+  { t: 6, id: 3, low: true }, { t: 18, id: 5, low: true },
+  { t: 34, id: 3, low: false }, { t: 48, id: 5, low: false },
+  { t: 60, id: 7, low: true }, { t: 78, id: 7, low: false }
+];
+const CYCLE = 90;
+
+class Component extends DCLogic {
+  state = {
+    screen: 'login', sel: 3, t: 0, uid: 1, now: new Date(),
+    machines: SEED.map((s, i) => ({
+      id: i + 1, name: s[0], location: s[1], temp: s[2], low: false,
+      reminder: 30, updated: null,
+      events: i === 2
+        ? [{ day: 'Yesterday', time: '3:15 PM', label: 'Water restored', kind: 'ok' },
+           { day: 'Yesterday', time: '10:40 AM', label: 'Low water detected', kind: 'low' }]
+        : []
+    })),
+    notifs: [], banner: null, bannerAt: 0, toast: null, form: { name: '', location: '', reminder: 30 }
+  };
+
+  componentDidMount() {
+    this.iv = setInterval(() => this.tick(), 1000 / (this.props.simSpeed ?? 1));
+    if (this.props.startScreen && this.props.startScreen !== 'login') this.setState({ screen: this.props.startScreen });
+  }
+  componentWillUnmount() { clearInterval(this.iv); clearTimeout(this.tt); }
+
+  time(d) {
+    let h = d.getHours() % 12; if (h === 0) h = 12;
+    return h + ':' + String(d.getMinutes()).padStart(2, '0') + ' ' + (d.getHours() < 12 ? 'AM' : 'PM');
+  }
+
+  tick() {
+    this.setState(s => {
+      const t = s.t + 1, now = new Date(), cyc = t % CYCLE;
+      let uid = s.uid, banner = s.banner, bannerAt = s.bannerAt;
+      if (s.screen === 'login') bannerAt = t;
+      else if (banner && t - bannerAt >= 7) banner = null;
+      let machines = s.machines.map(m => ({ ...m, temp: Math.min(11, Math.max(5.5, m.temp + (Math.random() - 0.5) * 0.16)) }));
+      let notifs = s.notifs;
+
+      SCRIPT.filter(e => e.t === cyc).forEach(e => {
+        const i = e.id - 1;
+        if (machines[i].low === e.low) return;
+        const stamp = this.time(now);
+        machines[i] = {
+          ...machines[i], low: e.low, updated: stamp,
+          events: [{ day: 'Today', time: stamp, label: e.low ? 'Low water detected' : 'Water restored', kind: e.low ? 'low' : 'ok' }, ...machines[i].events]
+        };
+        if (e.low) {
+          const n = { key: uid++, mid: e.id, name: machines[i].name, time: stamp, status: 'active', remindAt: null };
+          notifs = [n, ...notifs];
+          banner = n.key; bannerAt = t;
+        } else {
+          notifs = notifs.map(n => n.mid === e.id && n.status !== 'resolved'
+            ? { ...n, status: 'resolved', resolvedAt: stamp } : n);
+          if (banner && !notifs.some(n => n.key === banner && n.status !== 'resolved')) banner = null;
+        }
+      });
+
+      notifs.filter(n => n.status === 'snoozed' && n.remindAt && t >= n.remindAt).forEach(n => {
+        notifs = notifs.map(x => x.key === n.key ? { ...x, status: 'active' } : x);
+        banner = n.key; bannerAt = t;
+      });
+
+      return { t, now, machines, notifs, banner, bannerAt, uid };
+    });
+  }
+
+  nav(screen) { return () => this.setState({ screen }); }
+  open(id) { return () => this.setState({ screen: 'detail', sel: id }); }
+  ack(key) { return () => this.setState(s => ({ notifs: s.notifs.map(n => n.key === key ? { ...n, status: 'acknowledged' } : n), banner: s.banner === key ? null : s.banner })); }
+  snooze(key) {
+    return () => this.setState(s => {
+      const n = s.notifs.find(x => x.key === key);
+      const mins = (s.machines[n.mid - 1] || {}).reminder || 30;
+      return {
+        notifs: s.notifs.map(x => x.key === key ? { ...x, status: 'snoozed', remindAt: s.t + 14 } : x),
+        banner: s.banner === key ? null : s.banner,
+        toast: 'Reminder set — ' + mins + ' min'
+      };
+    }, () => this.flash());
+  }
+  flash() { clearTimeout(this.tt); this.tt = setTimeout(() => this.setState({ toast: null }), 2600); }
+
+  temp(m) { return (this.props.fahrenheit ? (m.temp * 9 / 5 + 32).toFixed(1) + '°F' : m.temp.toFixed(1) + '°C'); }
+
+  history(m) {
+    const groups = [];
+    m.events.forEach(e => {
+      const g = groups[groups.length - 1];
+      const item = { time: e.time, label: e.label, dot: { width: '8px', height: '8px', borderRadius: '50%', flex: 'none', background: e.kind === 'low' ? '#c67139' : '#7a8a5e' } };
+      if (g && g.day === e.day) g.items.push(item); else groups.push({ day: e.day, items: [item] });
+    });
+    if (!groups.length) groups.push({ day: 'Today', items: [{ time: this.time(this.state.now), label: 'Monitoring — no events', dot: { width: '8px', height: '8px', borderRadius: '50%', flex: 'none', background: '#c0b6a5' } }] });
+    return groups;
+  }
+
+  navBtn(on) {
+    return {
+      flex: 1, minHeight: '46px', borderRadius: '999px', border: 'none', cursor: 'pointer',
+      fontFamily: 'var(--font-heading)', fontSize: '14px',
+      background: on ? '#201e1d' : 'var(--color-surface)', color: on ? '#f5ead8' : '#201e1d'
+    };
+  }
+
+  renderVals() {
+    const s = this.state, low = s.machines.filter(m => m.low);
+    const sel = s.machines[s.sel - 1];
+    const live = s.notifs.filter(n => n.status === 'active' || n.status === 'snoozed' || n.status === 'acknowledged');
+    const bn = s.screen === 'login' ? null : s.notifs.find(n => n.key === s.banner && n.status === 'active');
+
+    return {
+      clock: this.time(s.now),
+      isLogin: s.screen === 'login', isDash: s.screen === 'dashboard', isDetail: s.screen === 'detail',
+      isSettings: s.screen === 'settings', isAlerts: s.screen === 'alerts',
+      isSettingsList: s.screen === 'settingsList',
+      showNav: s.screen === 'dashboard' || s.screen === 'alerts' || s.screen === 'settingsList',
+      signIn: this.nav('dashboard'), goDash: this.nav('dashboard'), goAlerts: this.nav('alerts'),
+      goDetail: this.nav('detail'), goSettingsList: this.nav('settingsList'),
+      backFromSettings: this.nav(s.from || 'detail'),
+      goSettings: () => this.setState({ screen: 'settings', from: 'detail', form: { name: sel.name, location: sel.location, reminder: sel.reminder } }),
+      siteLine: low.length ? low.length + ' machine' + (low.length > 1 ? 's' : '') + ' need attention' : 'All machines normal',
+      normalCount: 8 - low.length, lowCount: low.length,
+      hasActive: live.length > 0, activeCount: live.length,
+      alertsBadge: live.length ? '· ' + live.length : '',
+      navMachines: this.navBtn(s.screen === 'dashboard'), navAlerts: this.navBtn(s.screen === 'alerts'),
+      navSettings: this.navBtn(s.screen === 'settingsList'),
+      toast: s.toast,
+
+      machines: s.machines.map(m => ({
+        key: m.id, short: '#' + m.id, status: m.low ? 'Low Water' : 'Normal', tempLabel: this.temp(m),
+        open: this.open(m.id), name: m.name, location: m.location, reminderLabel: m.reminder + ' min',
+        configure: () => this.setState({ screen: 'settings', sel: m.id, from: 'settingsList', form: { name: m.name, location: m.location, reminder: m.reminder } }),
+        row: {
+          display: 'flex', alignItems: 'center', gap: 'var(--space-3)', width: '100%', cursor: 'pointer',
+          padding: 'var(--space-3) var(--space-4)', borderRadius: 'var(--radius-lg)',
+          background: 'var(--color-surface)', border: 'none', color: 'var(--color-text)', font: 'inherit'
+        },
+        tile: {
+          display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'stretch', textAlign: 'left',
+          padding: 'var(--space-4)', borderRadius: 'var(--radius-lg)', cursor: 'pointer',
+          background: m.low ? '#ffe1d0' : 'var(--color-surface)',
+          border: '1.5px solid ' + (m.low ? '#c67139' : 'transparent'),
+          color: 'var(--color-text)', font: 'inherit'
+        },
+        dotWrap: { position: 'relative', width: '12px', height: '12px', display: 'block' },
+        dot: { position: 'absolute', inset: 0, borderRadius: '50%', background: m.low ? '#c67139' : '#7a8a5e' },
+        tag: {
+          alignSelf: 'flex-start', padding: '3px 10px', borderRadius: '999px', fontSize: '12px', fontWeight: 700,
+          background: m.low ? '#643312' : '#ccdbb2', color: m.low ? '#fff2eb' : SAGE
+        }
+      })),
+
+      sel: {
+        name: sel.name, location: sel.location, tempLabel: this.temp(sel),
+        updated: sel.updated || this.time(s.now),
+        status: sel.low ? 'Low Water' : 'Normal',
+        statusNote: sel.low ? 'Refill required' : 'Water level above sensor',
+        panel: {
+          padding: 'var(--space-4)', borderRadius: 'var(--radius-lg)', marginBottom: 'var(--space-3)',
+          background: sel.low ? '#c67139' : '#ccdbb2', color: sel.low ? '#402310' : SAGE
+        },
+        panelIcon: {
+          width: '46px', height: '46px', flex: 'none', borderRadius: '50%', display: 'flex',
+          alignItems: 'center', justifyContent: 'center',
+          background: sel.low ? 'rgba(64,35,16,.18)' : 'rgba(86,99,63,.16)'
+        },
+        history: this.history(sel)
+      },
+
+      form: s.form,
+      setName: e => { const v = e.target.value; this.setState(st => ({ form: { ...st.form, name: v } })); },
+      setLocation: e => { const v = e.target.value; this.setState(st => ({ form: { ...st.form, location: v } })); },
+      reminderOpts: [15, 30, 60].map(v => ({
+        key: v, label: v + ' min', pick: () => this.setState(st => ({ form: { ...st.form, reminder: v } })),
+        style: {
+          flex: 1, minHeight: '42px', borderRadius: '999px', cursor: 'pointer', fontFamily: 'var(--font-heading)', fontSize: '14px',
+          background: s.form.reminder === v ? '#c67139' : 'var(--color-surface)',
+          color: s.form.reminder === v ? '#f5ead8' : '#201e1d',
+          border: '1px solid ' + (s.form.reminder === v ? '#c67139' : 'transparent')
+        }
+      })),
+      save: () => this.setState(st => ({
+        screen: st.from || 'detail', toast: 'Saved',
+        machines: st.machines.map(m => m.id === st.sel ? { ...m, name: st.form.name, location: st.form.location, reminder: st.form.reminder } : m)
+      }), () => this.flash()),
+
+      noAlerts: s.notifs.length === 0,
+      alertsLine: live.length ? live.length + ' open · ' + (s.notifs.length - live.length) + ' resolved' : 'Nothing open',
+      alerts: s.notifs.map(n => {
+        const done = n.status === 'resolved';
+        return {
+          key: n.key, title: n.name, time: n.time, live: n.status === 'active',
+          note: done ? 'Water restored ' + n.resolvedAt
+            : n.status === 'snoozed' ? 'Reminder set — you will be notified again'
+            : n.status === 'acknowledged' ? 'Acknowledged — waiting for refill' : 'Refill required',
+          ack: this.ack(n.key), snooze: this.snooze(n.key),
+          dot: { width: '10px', height: '10px', borderRadius: '50%', flex: 'none', background: done ? '#7a8a5e' : '#c67139' },
+          card: {
+            padding: 'var(--space-4)', borderRadius: 'var(--radius-lg)', marginBottom: 'var(--space-3)',
+            background: done ? 'var(--color-surface)' : '#ffe1d0',
+            border: '1.5px solid ' + (done ? 'transparent' : '#f6a06b'),
+            opacity: done ? 0.75 : 1
+          }
+        };
+      }),
+
+      banner: bn ? { title: bn.name + ' — Low Water', note: 'Refill required', ack: this.ack(bn.key), snooze: this.snooze(bn.key) } : null
+    };
+  }
+}
+</script>
+</body>
+</html>

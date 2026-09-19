@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<template id="__bundler_thumbnail" data-bg-color="#f7f6f3">
+<svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+<rect width="1200" height="800" fill="#f7f6f3"></rect>
+<rect x="360" y="240" width="480" height="320" rx="72" fill="#c2410c"></rect>
+<path d="M600 300c-18 62-92 96-92 168a92 92 0 0 0 184 0c0-72-74-106-92-168z" fill="none" stroke="#fff7ed" stroke-width="26" stroke-linejoin="round"></path>
+</svg>
+</template>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="stylesheet" href="ds/shadcn.css">
+<style>
+body{margin:0;background:var(--sidebar)}
+a{color:var(--foreground);text-decoration:underline;text-underline-offset:3px}
+a:hover{color:var(--muted-foreground)}
+@keyframes scIn{from{transform:translateY(-120%);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes scFade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scPing{0%{opacity:.5;transform:scale(1)}70%,100%{opacity:0;transform:scale(2.2)}}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;justify-content:center;background:var(--sidebar)">
+<div style="position:relative;width:100%;max-width:412px;height:880px;background:var(--app);overflow:hidden;display:flex;flex-direction:column">
+
+<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 18px 0;font-family:var(--font-heading);font-size:11px;font-weight:500;color:var(--muted-foreground)">
+<span>{{ clock }}</span>
+<span style="display:flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:999px;background:var(--ok)"></span>LIVE</span>
+</div>
+
+<sc-if value="{{ isLogin }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:32px 24px 72px">
+<div style="width:52px;height:52px;border-radius:999px;background:var(--primary);display:flex;align-items:center;justify-content:center;margin-bottom:22px">
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="oklch(0.988 0.003 106.5)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"></path></svg>
+</div>
+<h1 style="font-size:26px;margin-bottom:8px">Brook Cherith</h1>
+<p style="margin:0 0 28px;font-size:14px;color:var(--muted-foreground);max-width:26em">Monitor your water vending machines and get notified the moment one runs low.</p>
+<div style="display:flex;flex-direction:column;gap:7px;margin-bottom:14px">
+<label style="font-size:14px;font-weight:500">Email</label>
+<input style="height:36px;padding:0 14px;font:inherit;font-size:14px;background:var(--input-50);color:var(--foreground);border:1px solid transparent;border-radius:var(--radius-input)" value="owner@brookcherith.ph" readonly="readonly">
+</div>
+<div style="display:flex;flex-direction:column;gap:7px;margin-bottom:24px">
+<label style="font-size:14px;font-weight:500">Password</label>
+<input type="password" style="height:36px;padding:0 14px;font:inherit;font-size:14px;background:var(--input-50);color:var(--foreground);border:1px solid transparent;border-radius:var(--radius-input)" value="chrthwtr" readonly="readonly">
+</div>
+<button style="height:40px;border:1px solid transparent;border-radius:var(--radius-pill);background:var(--primary);color:var(--primary-foreground);font-size:14px;font-weight:500;cursor:pointer" onClick="{{ signIn }}">Sign in</button>
+<p style="margin:16px 0 0;font-size:13px;color:var(--muted-foreground);text-align:center">First time here? <a href="#" onClick="{{ goSetup }}">Set up your account</a></p>
+</div>
+</sc-if>
+
+<sc-if value="{{ isSetup }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;padding:16px 24px 28px">
+<div style="display:flex;align-items:center;gap:12px;margin-bottom:26px">
+<button style="{{ setupBackStyle }}" onClick="{{ setupBack }}" aria-label="Back">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg>
+</button>
+<div style="flex:1;display:flex;gap:5px">
+<sc-for list="{{ setupSteps }}" as="p" hint-placeholder-count="3">
+<span style="{{ p.style }}"></span>
+</sc-for>
+</div>
+<span style="font-family:var(--font-heading);font-size:12px;font-weight:500;color:var(--muted-foreground)">{{ setupCount }}</span>
+</div>
+
+<h1 style="font-size:26px;margin-bottom:8px">{{ setupTitle }}</h1>
+<p style="margin:0 0 26px;font-size:14px;color:var(--muted-foreground);max-width:26em">{{ setupBlurb }}</p>
+
+<sc-if value="{{ setupIs1 }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;flex-direction:column;gap:7px;margin-bottom:16px">
+<label style="font-size:14px;font-weight:500">Business name</label>
+<input style="height:36px;padding:0 14px;font:inherit;font-size:14px;background:var(--input-50);color:var(--foreground);border:1px solid transparent;border-radius:var(--radius-input)" placeholder="Brook Cherith Water Station" value="{{ setup.business }}" onChange="{{ setBusiness }}">
+</div>
+<div style="display:flex;flex-direction:column;gap:7px;margin-bottom:16px">
+<label style="font-size:14px;font-weight:500">Owner name</label>
+<input style="height:36px;padding:0 14px;font:inherit;font-size:14px;background:var(--input-50);color:var(--foreground);border:1px solid transparent;border-radius:var(--radius-input)" placeholder="Juan dela Cruz" value="{{ setup.owner }}" onChange="{{ setOwner }}">
+</div>
+<div style="display:flex;flex-direction:column;gap:7px">
+<label style="font-size:14px;font-weight:500">Mobile number</label>
+<input style="height:36px;padding:0 14px;font:inherit;font-size:14px;background:var(--input-50);color:var(--foreground);border:1px solid transparent;border-radius:var(--radius-input)" placeholder="+63 9XX XXX XXXX" value="{{ setup.phone }}" onChange="{{ setPhone }}">
+</div>
+</sc-if>
+
+<sc-if value="{{ setupIs2 }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:16px 18px;margin-bottom:18px;border-radius:var(--radius-card);background:var(--tile);box-shadow:var(--ring-hairline)">
+<div>
+<div style="font-size:14px;font-weight:500">Machines to register</div>
+<div style="font-size:12px;color:var(--muted-foreground)">You can add or rename them later</div>
+</div>
+<div style="display:flex;align-items:center;gap:6px">
+<button style="{{ minusStyle }}" onClick="{{ fewer }}" aria-label="Fewer">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14"></path></svg>
+</button>
+<span style="min-width:24px;text-align:center;font-family:var(--font-heading);font-size:20px;font-weight:600">{{ setup.count }}</span>
+<button style="{{ plusStyle }}" onClick="{{ more }}" aria-label="More">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+</button>
+</div>
+</div>
+<div style="flex:1;min-height:0;overflow:auto;border-radius:var(--radius-card);background:var(--card);box-shadow:var(--shadow-md),var(--ring-hairline);padding:6px 0">
+<sc-for list="{{ setupRows }}" as="r" hint-placeholder-count="4">
+<div style="display:flex;align-items:center;gap:12px;padding:11px 18px">
+<span style="width:26px;height:26px;flex:none;border-radius:999px;background:var(--muted);display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-size:12px;font-weight:600">{{ r.n }}</span>
+<input style="{{ r.inputStyle }}" placeholder="Location, e.g. School Building A" value="{{ r.location }}" onChange="{{ r.set }}">
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{ setupIs3 }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:7px;margin-bottom:22px">
+<label style="font-size:14px;font-weight:500">Remind me again after</label>
+<div style="display:flex;gap:4px;height:36px;padding:4px;background:var(--muted);border-radius:999px">
+<sc-for list="{{ setupReminderOpts }}" as="r" hint-placeholder-count="3">
+<button style="{{ r.style }}" onClick="{{ r.pick }}">{{ r.label }}</button>
+</sc-for>
+</div>
+</div>
+<button style="{{ pushRow }}" onClick="{{ togglePush }}">
+<span style="flex:1;text-align:left">
+<span style="display:block;font-size:14px;font-weight:500">Push notifications</span>
+<span style="display:block;font-size:12px;color:var(--muted-foreground)">Alert me the moment a machine runs low</span>
+</span>
+<span style="{{ pushTrack }}"><span style="{{ pushKnob }}"></span></span>
+</button>
+</sc-if>
+
+<div style="flex:1;min-height:20px"></div>
+<button style="height:40px;width:100%;border:1px solid transparent;border-radius:var(--radius-pill);background:var(--primary);color:var(--primary-foreground);font-size:14px;font-weight:500;cursor:pointer" onClick="{{ setupNext }}">{{ setupCta }}</button>
+</div>
+</sc-if>
+
+<sc-if value="{{ isDash }}" hint-placeholder-val="{{ true }}">
+<div style="flex:1;min-height:0;overflow:auto;padding:16px 18px 24px">
+<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:18px">
+<div>
+<h1 style="font-size:24px;margin-bottom:4px">{{ greeting }}</h1>
+<p style="margin:0;font-size:13px;color:var(--muted-foreground)">{{ siteLine }}</p>
+</div>
+<button style="{{ bellStyle }}" onClick="{{ goAlerts }}" aria-label="Alerts">
+<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>
+<sc-if value="{{ hasActive }}" hint-placeholder-val="{{ false }}">
+<span style="position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:var(--destructive);color:#fff;font-family:var(--font-heading);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;border:2px solid var(--app)">{{ activeCount }}</span>
+</sc-if>
+</button>
+</div>
+
+<div style="{{ heroCard }}">
+<div style="flex:1;min-width:0">
+<div style="font-size:12px;font-weight:500;letter-spacing:.05em;text-transform:uppercase;opacity:.7;margin-bottom:10px">Fleet status</div>
+<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:12px">
+<span style="font-family:var(--font-heading);font-size:38px;font-weight:600;line-height:1">{{ normalCount }}</span>
+<span style="font-size:14px;opacity:.75">{{ fleetLine }}</span>
+</div>
+<div style="{{ heroNote }}">{{ heroNoteText }}</div>
+</div>
+<div style="position:relative;width:86px;height:86px;flex:none">
+<svg width="86" height="86" viewBox="0 0 86 86" style="display:block;transform:rotate(-90deg)">
+<circle cx="43" cy="43" r="36" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="9"></circle>
+<circle cx="43" cy="43" r="36" fill="none" stroke="{{ ringColor }}" stroke-width="9" stroke-linecap="round" stroke-dasharray="{{ ringDash }}"></circle>
+</svg>
+<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--font-heading);font-size:18px;font-weight:600">{{ ringPct }}</div>
+</div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+<sc-for list="{{ machines }}" as="m" hint-placeholder-count="8">
+<button style="{{ m.tile }}" onClick="{{ m.open }}">
+<div style="display:flex;align-items:center;justify-content:space-between;width:100%">
+<span style="font-family:var(--font-heading);font-size:15px;font-weight:600">{{ m.name }}</span>
+<span style="{{ m.dotWrap }}"><span style="{{ m.ping }}"></span><span style="{{ m.dot }}"></span></span>
+</div>
+<span style="{{ m.badge }}">{{ m.status }}</span>
+<div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted-foreground)">
+<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0z"></path></svg>
+{{ m.tempLabel }}
+</div>
+</button>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isDetail }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;min-height:0;overflow:auto;padding:16px 18px 32px">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+<button style="display:flex;align-items:center;gap:5px;height:32px;padding:0 12px 0 8px;background:transparent;border:1px solid transparent;border-radius:var(--radius-pill);cursor:pointer;color:var(--muted-foreground);font-size:13px;font-weight:500" onClick="{{ goDash }}">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg>Machines
+</button>
+<button style="display:flex;align-items:center;gap:6px;height:32px;padding:0 14px;background:var(--background);border:1px solid var(--border);border-radius:var(--radius-pill);cursor:pointer;color:var(--foreground);font-size:13px;font-weight:500" onClick="{{ goSettings }}">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10"></path><path d="M18 7h2"></path><path d="M4 17h4"></path><path d="M12 17h8"></path><circle cx="16" cy="7" r="2"></circle><circle cx="10" cy="17" r="2"></circle></svg>Configure
+</button>
+</div>
+<h1 style="font-size:24px;margin-bottom:5px">{{ sel.name }}</h1>
+<p style="margin:0 0 18px;font-size:13px;color:var(--muted-foreground);display:flex;align-items:center;gap:6px">
+<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+{{ sel.location }}
+</p>
+
+<div style="{{ sel.alert }}">
+<div style="display:flex;gap:10px">
+<span style="flex:none;margin-top:1px;display:flex">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"></path></svg>
+</span>
+<div>
+<div style="font-family:var(--font-heading);font-size:14px;font-weight:600;margin-bottom:2px">{{ sel.status }}</div>
+<div style="font-size:13px">{{ sel.statusNote }}</div>
+</div>
+</div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:26px">
+<div style="padding:16px 18px;border-radius:var(--radius-card);background:var(--card);box-shadow:var(--shadow-md),var(--ring-hairline)">
+<div style="font-size:12px;font-weight:500;color:var(--muted-foreground);margin-bottom:6px">Temperature</div>
+<div style="font-family:var(--font-heading);font-size:20px;font-weight:600">{{ sel.tempLabel }}</div>
+</div>
+<div style="padding:16px 18px;border-radius:var(--radius-card);background:var(--card);box-shadow:var(--shadow-md),var(--ring-hairline)">
+<div style="font-size:12px;font-weight:500;color:var(--muted-foreground);margin-bottom:6px">Last updated</div>
+<div style="font-family:var(--font-heading);font-size:20px;font-weight:600">{{ sel.updated }}</div>
+</div>
+</div>
+
+<h4 style="font-size:16px;margin-bottom:12px">History</h4>
+<sc-for list="{{ sel.history }}" as="g" hint-placeholder-count="2">
+<div style="margin-bottom:18px">
+<div style="font-size:11px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;color:var(--muted-foreground);margin-bottom:8px">{{ g.day }}</div>
+<div style="display:flex;flex-direction:column">
+<sc-for list="{{ g.items }}" as="e" hint-placeholder-count="2">
+<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+<span style="{{ e.dot }}"></span>
+<span style="font-size:13px;flex:1">{{ e.label }}</span>
+<span style="font-family:var(--font-heading);font-size:12px;color:var(--muted-foreground)">{{ e.time }}</span>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{ isSettingsList }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;min-height:0;overflow:auto;padding:16px 18px 24px">
+<h1 style="font-size:24px;margin-bottom:5px">Settings</h1>
+<p style="margin:0 0 22px;font-size:13px;color:var(--muted-foreground)">owner@brookcherith.ph · 8 registered machines</p>
+<div style="font-size:11px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;color:var(--muted-foreground);margin-bottom:10px">Machines</div>
+<div style="border-radius:var(--radius-card);background:var(--card);overflow:hidden;box-shadow:var(--shadow-md),var(--ring-hairline);padding:6px 0">
+<sc-for list="{{ machines }}" as="m" hint-placeholder-count="8">
+<button style="{{ m.row }}" onClick="{{ m.configure }}">
+<span style="flex:1;min-width:0;text-align:left">
+<span style="display:block;font-size:14px;font-weight:500">{{ m.name }}</span>
+<span style="display:block;font-size:12px;color:var(--muted-foreground)">{{ m.location }} · reminder {{ m.reminderLabel }}</span>
+</span>
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="color:var(--muted-foreground)"><path d="m9 18 6-6-6-6"></path></svg>
+</button>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;min-height:0;overflow:auto;padding:16px 18px 32px">
+<button style="display:flex;align-items:center;gap:5px;height:32px;padding:0 12px 0 8px;margin-bottom:18px;background:transparent;border:1px solid transparent;border-radius:var(--radius-pill);cursor:pointer;color:var(--muted-foreground);font-size:13px;font-weight:500" onClick="{{ backFromSettings }}">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg>Back
+</button>
+<h1 style="font-size:24px;margin-bottom:5px">Configure</h1>
+<p style="margin:0 0 24px;font-size:13px;color:var(--muted-foreground)">{{ sel.name }} · registered device</p>
+<div style="display:flex;flex-direction:column;gap:7px;margin-bottom:16px">
+<label style="font-size:14px;font-weight:500">Machine name</label>
+<input style="height:36px;padding:0 14px;font:inherit;font-size:14px;background:var(--input-50);color:var(--foreground);border:1px solid transparent;border-radius:var(--radius-input)" value="{{ form.name }}" onChange="{{ setName }}">
+</div>
+<div style="display:flex;flex-direction:column;gap:7px;margin-bottom:16px">
+<label style="font-size:14px;font-weight:500">Location</label>
+<input style="height:36px;padding:0 14px;font:inherit;font-size:14px;background:var(--input-50);color:var(--foreground);border:1px solid transparent;border-radius:var(--radius-input)" value="{{ form.location }}" onChange="{{ setLocation }}">
+</div>
+<div style="display:flex;flex-direction:column;gap:7px;margin-bottom:12px">
+<label style="font-size:14px;font-weight:500">Remind me again after</label>
+<div style="display:flex;gap:4px;height:36px;padding:4px;background:var(--muted);border-radius:999px">
+<sc-for list="{{ reminderOpts }}" as="r" hint-placeholder-count="3">
+<button style="{{ r.style }}" onClick="{{ r.pick }}">{{ r.label }}</button>
+</sc-for>
+</div>
+</div>
+<p style="font-size:13px;color:var(--muted-foreground);margin:0 0 26px">Choosing <em>Remind me later</em> on a low-water alert re-notifies you after this interval, unless the machine reports water restored first.</p>
+<button style="height:40px;width:100%;border:1px solid transparent;border-radius:var(--radius-pill);background:var(--primary);color:var(--primary-foreground);font-size:14px;font-weight:500;cursor:pointer" onClick="{{ save }}">Save changes</button>
+</div>
+</sc-if>
+
+<sc-if value="{{ isAlerts }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;min-height:0;overflow:auto;padding:16px 18px 24px">
+<h1 style="font-size:24px;margin-bottom:5px">Alerts</h1>
+<p style="margin:0 0 18px;font-size:13px;color:var(--muted-foreground)">{{ alertsLine }}</p>
+<sc-if value="{{ noAlerts }}" hint-placeholder-val="{{ false }}">
+<div style="padding:40px 20px;border:1px dashed var(--border);border-radius:var(--radius-card);text-align:center">
+<div style="font-family:var(--font-heading);font-size:15px;font-weight:600;margin-bottom:4px">All machines normal</div>
+<p style="margin:0;font-size:13px;color:var(--muted-foreground)">Low-water alerts appear here as the sensors report them.</p>
+</div>
+</sc-if>
+<sc-for list="{{ alerts }}" as="a" hint-placeholder-count="3">
+<div style="{{ a.card }}">
+<div style="display:flex;align-items:center;gap:9px;margin-bottom:4px">
+<span style="{{ a.dot }}"></span>
+<span style="font-family:var(--font-heading);font-size:14px;font-weight:600;flex:1">{{ a.title }}</span>
+<span style="font-family:var(--font-heading);font-size:12px;color:var(--muted-foreground)">{{ a.time }}</span>
+</div>
+<div style="font-size:13px;color:var(--muted-foreground);margin-left:18px">{{ a.note }}</div>
+<sc-if value="{{ a.live }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;gap:8px;margin:14px 0 0 18px">
+<button style="height:32px;padding:0 14px;border:1px solid transparent;border-radius:var(--radius-pill);background:var(--primary);color:var(--primary-foreground);font-size:13px;font-weight:500;cursor:pointer" onClick="{{ a.ack }}">Acknowledge</button>
+<button style="height:32px;padding:0 14px;border:1px solid var(--border);border-radius:var(--radius-pill);background:var(--background);color:var(--foreground);font-size:13px;font-weight:500;cursor:pointer" onClick="{{ a.snooze }}">Remind me later</button>
+</div>
+</sc-if>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{ showNav }}" hint-placeholder-val="{{ true }}">
+<div style="flex:none;display:flex;justify-content:center;padding:10px 16px 18px;background:var(--app);border-top:1px solid var(--border)">
+<div style="display:flex;align-items:center;gap:4px;padding:6px;border-radius:999px;background:var(--background);box-shadow:var(--shadow-lg),var(--ring-hairline)">
+<button style="{{ navMachines }}" onClick="{{ goDash }}" aria-label="Machines">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="2"></rect><rect x="14" y="3" width="7" height="7" rx="2"></rect><rect x="3" y="14" width="7" height="7" rx="2"></rect><rect x="14" y="14" width="7" height="7" rx="2"></rect></svg>
+<span style="{{ navMachinesLabel }}">Machines</span>
+</button>
+<button style="{{ navAlerts }}" onClick="{{ goAlerts }}" aria-label="Alerts">
+<span style="position:relative;display:flex">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>
+<sc-if value="{{ hasActive }}" hint-placeholder-val="{{ false }}">
+<span style="{{ navAlertDot }}"></span>
+</sc-if>
+</span>
+<span style="{{ navAlertsLabel }}">Alerts</span>
+</button>
+<button style="{{ navSettings }}" onClick="{{ goSettingsList }}" aria-label="Settings">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h10"></path><path d="M18 7h2"></path><path d="M4 17h4"></path><path d="M12 17h8"></path><circle cx="16" cy="7" r="2"></circle><circle cx="10" cy="17" r="2"></circle></svg>
+<span style="{{ navSettingsLabel }}">Settings</span>
+</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ banner }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:12px;left:12px;right:12px;padding:18px;border-radius:var(--radius-card);background:var(--card);box-shadow:var(--shadow-lg),var(--ring-hairline);animation:scIn .28s cubic-bezier(.2,.9,.3,1.05);z-index:20">
+<div style="display:flex;gap:11px">
+<span style="position:relative;width:20px;height:20px;flex:none;display:flex;align-items:center;justify-content:center;color:var(--destructive);margin-top:1px">
+<span style="position:absolute;inset:4px;border-radius:999px;background:var(--destructive);animation:scPing 1.8s cubic-bezier(0,0,.2,1) infinite"></span>
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"></path></svg>
+</span>
+<div style="flex:1;min-width:0">
+<div style="font-size:11px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;color:var(--muted-foreground);margin-bottom:3px">Brook Cherith</div>
+<div style="font-family:var(--font-heading);font-size:15px;font-weight:600;margin-bottom:2px">{{ banner.title }}</div>
+<div style="font-size:13px;color:var(--muted-foreground)">{{ banner.note }}</div>
+</div>
+</div>
+<div style="display:flex;gap:8px;margin-top:14px">
+<button style="flex:1;height:34px;border:1px solid transparent;border-radius:var(--radius-pill);background:var(--primary);color:var(--primary-foreground);font-size:13px;font-weight:500;cursor:pointer" onClick="{{ banner.ack }}">Acknowledge</button>
+<button style="flex:1;height:34px;border:1px solid var(--border);border-radius:var(--radius-pill);background:var(--background);color:var(--foreground);font-size:13px;font-weight:500;cursor:pointer" onClick="{{ banner.snooze }}">Remind me later</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;left:18px;right:18px;bottom:92px;padding:12px 16px;border-radius:var(--radius-alert);background:var(--primary);color:var(--primary-foreground);font-size:13px;font-weight:500;text-align:center;box-shadow:var(--shadow-lg);animation:scFade .18s ease;z-index:15">{{ toast }}</div>
+</sc-if>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:412,&quot;height&quot;:880},&quot;simSpeed&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1,&quot;min&quot;:0.5,&quot;max&quot;:3,&quot;step&quot;:0.5,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Simulation&quot;},&quot;startScreen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;login&quot;,&quot;options&quot;:[&quot;login&quot;,&quot;setup&quot;,&quot;dashboard&quot;,&quot;alerts&quot;,&quot;settingsList&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Simulation&quot;},&quot;fahrenheit&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Display&quot;}}">
+const SEED = [
+  ['Machine #1', 'School Building A', 8.1],
+  ['Machine #2', 'School Building B', 7.4],
+  ['Machine #3', 'Canteen Annex', 8.0],
+  ['Machine #4', 'Gym Lobby', 9.2],
+  ['Machine #5', 'Library Wing', 8.3],
+  ['Machine #6', 'Admin Wing', 7.8],
+  ['Machine #7', 'Covered Court', 8.6],
+  ['Machine #8', 'Building C Hall', 7.2]
+];
+const SCRIPT = [
+  { t: 6, id: 3, low: true }, { t: 18, id: 5, low: true },
+  { t: 34, id: 3, low: false }, { t: 48, id: 5, low: false },
+  { t: 60, id: 7, low: true }, { t: 78, id: 7, low: false }
+];
+const CYCLE = 90;
+const BAD = 'var(--destructive)', OK = 'var(--ok)';
+
+class Component extends DCLogic {
+  state = {
+    screen: 'login', sel: 3, t: 0, uid: 1, now: new Date(), from: 'detail',
+    machines: SEED.map((s, i) => ({
+      id: i + 1, name: s[0], location: s[1], temp: s[2], low: false,
+      reminder: 30, updated: null,
+      events: i === 2
+        ? [{ day: 'Yesterday', time: '3:15 PM', label: 'Water restored', kind: 'ok' },
+           { day: 'Yesterday', time: '10:40 AM', label: 'Low water detected', kind: 'low' }]
+        : []
+    })),
+    notifs: [], banner: null, bannerAt: 0, toast: null, form: { name: '', location: '', reminder: 30 },
+    step: 1,
+    setup: { business: '', owner: '', phone: '', count: 4, locations: [], reminder: 30, push: true }
+  };
+
+  componentDidMount() {
+    this.iv = setInterval(() => this.tick(), 1000 / (this.props.simSpeed ?? 1));
+    if (this.props.startScreen && this.props.startScreen !== 'login') this.setState({ screen: this.props.startScreen });
+  }
+  componentWillUnmount() { clearInterval(this.iv); clearTimeout(this.tt); }
+
+  time(d) {
+    let h = d.getHours() % 12; if (h === 0) h = 12;
+    return h + ':' + String(d.getMinutes()).padStart(2, '0') + ' ' + (d.getHours() < 12 ? 'AM' : 'PM');
+  }
+
+  tick() {
+    this.setState(s => {
+      const t = s.t + 1, now = new Date(), cyc = t % CYCLE;
+      let uid = s.uid, banner = s.banner, bannerAt = s.bannerAt;
+      if (s.screen === 'login' || s.screen === 'setup') bannerAt = t;
+      else if (banner && t - bannerAt >= 7) banner = null;
+      let machines = s.machines.map(m => ({ ...m, temp: Math.min(11, Math.max(5.5, m.temp + (Math.random() - 0.5) * 0.16)) }));
+      let notifs = s.notifs;
+
+      this.script(machines.length).filter(e => e.t === cyc).forEach(e => {
+        const i = e.id - 1;
+        if (!machines[i] || machines[i].low === e.low) return;
+        const stamp = this.time(now);
+        machines[i] = {
+          ...machines[i], low: e.low, updated: stamp,
+          events: [{ day: 'Today', time: stamp, label: e.low ? 'Low water detected' : 'Water restored', kind: e.low ? 'low' : 'ok' }, ...machines[i].events]
+        };
+        if (e.low) {
+          const n = { key: uid++, mid: e.id, name: machines[i].name, time: stamp, status: 'active', remindAt: null };
+          notifs = [n, ...notifs];
+          banner = n.key; bannerAt = t;
+        } else {
+          notifs = notifs.map(n => n.mid === e.id && n.status !== 'resolved'
+            ? { ...n, status: 'resolved', resolvedAt: stamp } : n);
+          if (banner && !notifs.some(n => n.key === banner && n.status !== 'resolved')) banner = null;
+        }
+      });
+
+      notifs.filter(n => n.status === 'snoozed' && n.remindAt && t >= n.remindAt).forEach(n => {
+        notifs = notifs.map(x => x.key === n.key ? { ...x, status: 'active' } : x);
+        banner = n.key; bannerAt = t;
+      });
+
+      return { t, now, machines, notifs, banner, bannerAt, uid };
+    });
+  }
+
+  /* Demo event script scaled to the registered fleet: up to three machines
+     spread across the list each go low, then recover. */
+  script(n) {
+    if (this._scriptN === n) return this._script;
+    const picks = [...new Set([
+      Math.min(n, 3),
+      Math.min(n, Math.max(1, Math.round(n * 0.62))),
+      Math.min(n, Math.max(1, n - 1))
+    ])].slice(0, 3);
+    const out = [];
+    picks.forEach((id, k) => {
+      out.push({ t: 6 + k * 12, id, low: true });
+      out.push({ t: 34 + k * 14, id, low: false });
+    });
+    this._scriptN = n; this._script = out;
+    return out;
+  }
+
+  nav(screen) { return () => this.setState({ screen }); }
+  open(id) { return () => this.setState({ screen: 'detail', sel: id }); }
+  ack(key) { return () => this.setState(s => ({ notifs: s.notifs.map(n => n.key === key ? { ...n, status: 'acknowledged' } : n), banner: s.banner === key ? null : s.banner })); }
+  snooze(key) {
+    return () => this.setState(s => {
+      const n = s.notifs.find(x => x.key === key);
+      const mins = (s.machines[n.mid - 1] || {}).reminder || 30;
+      return {
+        notifs: s.notifs.map(x => x.key === key ? { ...x, status: 'snoozed', remindAt: s.t + 14 } : x),
+        banner: s.banner === key ? null : s.banner,
+        toast: 'Reminder set — ' + mins + ' min'
+      };
+    }, () => this.flash());
+  }
+  flash() { clearTimeout(this.tt); this.tt = setTimeout(() => this.setState({ toast: null }), 2600); }
+
+  temp(m) { return this.props.fahrenheit ? (m.temp * 9 / 5 + 32).toFixed(1) + '°F' : m.temp.toFixed(1) + '°C'; }
+
+  history(m) {
+    const dot = c => ({ width: '7px', height: '7px', borderRadius: '999px', flex: 'none', background: c });
+    const groups = [];
+    m.events.forEach(e => {
+      const g = groups[groups.length - 1];
+      const item = { time: e.time, label: e.label, dot: dot(e.kind === 'low' ? BAD : OK) };
+      if (g && g.day === e.day) g.items.push(item); else groups.push({ day: e.day, items: [item] });
+    });
+    if (!groups.length) groups.push({ day: 'Today', items: [{ time: this.time(this.state.now), label: 'Monitoring — no events', dot: dot('var(--chart-1)') }] });
+    return groups;
+  }
+
+  stepBtn(enabled) {
+    return {
+      width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+      background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '999px',
+      cursor: enabled ? 'pointer' : 'default', opacity: enabled ? 1 : 0.4, color: 'var(--foreground)'
+    };
+  }
+
+  segBtn(on) {
+    return {
+      flex: 1, borderRadius: '999px', cursor: 'pointer', fontFamily: 'inherit',
+      fontSize: '13px', fontWeight: 500, border: '1px solid transparent',
+      background: on ? 'var(--background)' : 'transparent',
+      color: on ? 'var(--foreground)' : 'var(--muted-foreground)',
+      boxShadow: on ? 'var(--shadow-sm)' : 'none'
+    };
+  }
+
+  navBtn(on) {
+    return {
+      display: 'flex', alignItems: 'center', gap: '7px', height: '40px',
+      padding: '0 14px', borderRadius: '999px', border: 'none', cursor: 'pointer',
+      fontSize: '13px', fontWeight: 500, fontFamily: 'var(--font-heading)',
+      background: on ? 'var(--primary)' : 'transparent',
+      color: on ? 'var(--primary-foreground)' : 'var(--muted-foreground)',
+      transition: 'background .15s'
+    };
+  }
+
+  navLabel() { return { whiteSpace: 'nowrap' }; }
+
+  finishSetup() {
+    this.setState(s => {
+      const u = s.setup;
+      const machines = Array.from({ length: u.count }, (_, i) => ({
+        id: i + 1, name: 'Machine #' + (i + 1), location: u.locations[i] || 'Unassigned location',
+        temp: 7.4 + Math.random() * 1.6, low: false, reminder: u.reminder, updated: null, events: []
+      }));
+      return { screen: 'dashboard', machines, sel: 1, notifs: [], banner: null, toast: 'Setup complete' };
+    }, () => this.flash());
+  }
+
+  renderVals() {
+    const s = this.state, low = s.machines.filter(m => m.low);
+    const sel = s.machines[s.sel - 1];
+    const live = s.notifs.filter(n => n.status !== 'resolved');
+    const bn = (s.screen === 'login' || s.screen === 'setup') ? null : s.notifs.find(n => n.key === s.banner && n.status === 'active');
+
+    return {
+      clock: this.time(s.now),
+      isLogin: s.screen === 'login', isDash: s.screen === 'dashboard', isDetail: s.screen === 'detail',
+      isSettings: s.screen === 'settings', isAlerts: s.screen === 'alerts', isSettingsList: s.screen === 'settingsList',
+      isSetup: s.screen === 'setup',
+      goSetup: e => { e.preventDefault(); this.setState({ screen: 'setup', step: 1 }); },
+      setupIs1: s.step === 1, setupIs2: s.step === 2, setupIs3: s.step === 3,
+      setupCount: s.step + ' / 3',
+      setupSteps: [1, 2, 3].map(n => ({
+        key: n,
+        style: { flex: 1, height: '4px', borderRadius: '999px', background: n <= s.step ? 'var(--primary)' : 'var(--muted)' }
+      })),
+      setupTitle: s.step === 1 ? 'Your details' : s.step === 2 ? 'Your machines' : 'Alerts',
+      setupBlurb: s.step === 1 ? 'We use this to label your dashboard and reach you when a machine needs attention.'
+        : s.step === 2 ? 'Tell us how many machines you run and where each one sits.'
+        : 'Choose how Brook Cherith should follow up when you put an alert off.',
+      setupCta: s.step === 3 ? 'Finish setup' : 'Continue',
+      setupBackStyle: {
+        width: '32px', height: '32px', flex: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: 'var(--background)', border: '1px solid var(--border)', borderRadius: '999px',
+        cursor: 'pointer', color: 'var(--foreground)'
+      },
+      setupBack: () => this.setState(st => st.step === 1 ? { screen: 'login' } : { step: st.step - 1 }),
+      setupNext: () => { if (s.step === 3) this.finishSetup(); else this.setState(st => ({ step: st.step + 1 })); },
+      setup: s.setup,
+      setBusiness: e => { const v = e.target.value; this.setState(st => ({ setup: { ...st.setup, business: v } })); },
+      setOwner: e => { const v = e.target.value; this.setState(st => ({ setup: { ...st.setup, owner: v } })); },
+      setPhone: e => { const v = e.target.value; this.setState(st => ({ setup: { ...st.setup, phone: v } })); },
+      fewer: () => this.setState(st => ({ setup: { ...st.setup, count: Math.max(1, st.setup.count - 1) } })),
+      more: () => this.setState(st => ({ setup: { ...st.setup, count: Math.min(12, st.setup.count + 1) } })),
+      minusStyle: this.stepBtn(s.setup.count > 1),
+      plusStyle: this.stepBtn(s.setup.count < 12),
+      setupRows: Array.from({ length: s.setup.count }, (_, i) => ({
+        key: i, n: i + 1, location: s.setup.locations[i] || '',
+        inputStyle: {
+          flex: 1, minWidth: 0, height: '34px', padding: '0 14px', font: 'inherit', fontSize: '13px',
+          background: 'var(--input-50)', color: 'var(--foreground)',
+          border: '1px solid transparent', borderRadius: 'var(--radius-input)'
+        },
+        set: e => {
+          const v = e.target.value;
+          this.setState(st => {
+            const locations = st.setup.locations.slice();
+            locations[i] = v;
+            return { setup: { ...st.setup, locations } };
+          });
+        }
+      })),
+      setupReminderOpts: [15, 30, 60].map(v => ({
+        key: v, label: v + ' min',
+        pick: () => this.setState(st => ({ setup: { ...st.setup, reminder: v } })),
+        style: this.segBtn(s.setup.reminder === v)
+      })),
+      togglePush: () => this.setState(st => ({ setup: { ...st.setup, push: !st.setup.push } })),
+      pushRow: {
+        display: 'flex', alignItems: 'center', gap: '14px', width: '100%', cursor: 'pointer',
+        padding: '16px 18px', borderRadius: 'var(--radius-card)', background: 'var(--card)',
+        border: 'none', boxShadow: 'var(--shadow-md), var(--ring-hairline)', color: 'var(--foreground)', font: 'inherit'
+      },
+      pushTrack: {
+        position: 'relative', width: '40px', height: '24px', flex: 'none', borderRadius: '999px',
+        background: s.setup.push ? 'var(--primary)' : 'var(--input)', transition: 'background .15s'
+      },
+      pushKnob: {
+        position: 'absolute', top: '3px', left: s.setup.push ? '19px' : '3px', width: '18px', height: '18px',
+        borderRadius: '999px', background: '#fff', boxShadow: 'var(--shadow-sm)', transition: 'left .15s'
+      },
+      showNav: s.screen === 'dashboard' || s.screen === 'alerts' || s.screen === 'settingsList',
+      signIn: this.nav('dashboard'), goDash: this.nav('dashboard'), goAlerts: this.nav('alerts'),
+      goSettingsList: this.nav('settingsList'), backFromSettings: this.nav(s.from || 'detail'),
+      goSettings: () => this.setState({ screen: 'settings', from: 'detail', form: { name: sel.name, location: sel.location, reminder: sel.reminder } }),
+      siteLine: low.length === 0 ? 'All ' + s.machines.length + ' machines normal'
+        : low.length === 1 ? '1 machine needs attention'
+        : low.length + ' machines need attention',
+      normalCount: s.machines.length - low.length, lowCount: low.length,
+      lowCountStyle: { fontFamily: 'var(--font-heading)', fontSize: '32px', fontWeight: 600, lineHeight: 1, color: low.length ? 'var(--destructive-ink)' : 'var(--foreground)' },
+      fleetLine: 'of ' + s.machines.length + ' normal',
+      greeting: s.now.getHours() < 12 ? 'Good morning' : s.now.getHours() < 18 ? 'Good afternoon' : 'Good evening',
+      ringPct: Math.round((s.machines.length - low.length) / s.machines.length * 100) + '%',
+      ringDash: (226.2 * (s.machines.length - low.length) / s.machines.length).toFixed(1) + ' 226.2',
+      heroCard: {
+        display: 'flex', alignItems: 'center', gap: '16px', padding: '22px', marginBottom: '20px',
+        borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-lg)',
+        color: 'var(--primary-foreground)',
+        /* constant primary ground — status is carried by the pill and the bell,
+           not by repainting the whole card */
+        background: 'var(--primary)'
+      },
+      ringColor: 'var(--primary-foreground)',
+      heroNoteText: low.length ? low.length + ' awaiting refill' : 'Every machine reporting normal',
+      heroNote: {
+        display: 'inline-flex', alignItems: 'center', height: '24px', padding: '0 11px', borderRadius: '999px',
+        fontSize: '12px', fontWeight: 500,
+        background: low.length ? 'var(--primary-foreground)' : 'rgba(255,255,255,.18)',
+        color: low.length ? 'var(--destructive-ink)' : 'inherit'
+      },
+      hasActive: live.length > 0, activeCount: live.length,
+      bellStyle: {
+        position: 'relative', width: '36px', height: '36px', display: 'flex', alignItems: 'center',
+        justifyContent: 'center', borderRadius: 'var(--radius-pill)', cursor: 'pointer',
+        background: 'var(--background)',
+        border: '1px solid var(--border)',
+        color: 'var(--foreground)'
+      },
+      navMachines: this.navBtn(s.screen === 'dashboard'), navAlerts: this.navBtn(s.screen === 'alerts'),
+      navSettings: this.navBtn(s.screen === 'settingsList'),
+      navMachinesLabel: this.navLabel(s.screen === 'dashboard'),
+      navAlertsLabel: this.navLabel(s.screen === 'alerts'),
+      navSettingsLabel: this.navLabel(s.screen === 'settingsList'),
+      navAlertDot: {
+        position: 'absolute', top: '-3px', right: '-4px', width: '8px', height: '8px', borderRadius: '999px',
+        background: s.screen === 'alerts' ? 'var(--primary-foreground)' : 'var(--destructive)',
+        border: '1.5px solid ' + (s.screen === 'alerts' ? 'var(--primary)' : 'var(--background)')
+      },
+      toast: s.toast,
+
+      machines: s.machines.map(m => ({
+        key: m.id, name: m.name, location: m.location, status: m.low ? 'Low water' : 'Normal',
+        tempLabel: this.temp(m), reminderLabel: m.reminder + ' min', open: this.open(m.id),
+        configure: () => this.setState({ screen: 'settings', sel: m.id, from: 'settingsList', form: { name: m.name, location: m.location, reminder: m.reminder } }),
+        tile: {
+          display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'flex-start', textAlign: 'left',
+          padding: '16px 18px', borderRadius: 'var(--radius-card)', cursor: 'pointer', width: '100%',
+          background: m.low ? 'var(--destructive-tint)' : 'var(--card)',
+          border: '1px solid ' + (m.low ? 'var(--destructive-tint-border)' : 'var(--border)'),
+          boxShadow: 'var(--shadow-sm)',
+          color: 'var(--foreground)', font: 'inherit'
+        },
+        dotWrap: { position: 'relative', width: '8px', height: '8px', display: 'block', flex: 'none' },
+        dot: { position: 'absolute', inset: 0, borderRadius: '999px', background: m.low ? BAD : OK },
+        ping: m.low
+          ? { position: 'absolute', inset: 0, borderRadius: '999px', background: BAD, animation: 'scPing 1.8s cubic-bezier(0,0,.2,1) infinite' }
+          : { display: 'none' },
+        badge: {
+          display: 'inline-flex', alignItems: 'center', height: '21px', padding: '0 9px', borderRadius: '999px',
+          fontSize: '12px', fontWeight: 500,
+          border: '1px solid ' + (m.low ? 'var(--destructive-tint-border)' : 'var(--ok-tint-border)'),
+          background: m.low ? 'var(--destructive-tint)' : 'var(--ok-tint)',
+          color: m.low ? 'var(--destructive-ink)' : 'var(--ok)'
+        },
+        row: {
+          display: 'flex', alignItems: 'center', gap: '10px', width: '100%', cursor: 'pointer',
+          padding: '11px 18px', background: 'transparent', border: 'none',
+          color: 'var(--foreground)', font: 'inherit'
+        }
+      })),
+
+      sel: {
+        name: sel.name, location: sel.location, tempLabel: this.temp(sel),
+        updated: sel.updated || this.time(s.now),
+        status: sel.low ? 'Low water' : 'Normal',
+        statusNote: sel.low ? 'Refill required' : 'Water level above the sensor',
+        alert: {
+          padding: '14px 16px', borderRadius: 'var(--radius-alert)', marginBottom: '14px',
+          background: sel.low ? 'var(--destructive-tint)' : 'var(--ok-tint)',
+          border: '1px solid ' + (sel.low ? 'var(--destructive-tint-border)' : 'var(--ok-tint-border)'),
+          color: sel.low ? 'var(--destructive-ink)' : 'var(--ok)'
+        },
+        history: this.history(sel)
+      },
+
+      form: s.form,
+      setName: e => { const v = e.target.value; this.setState(st => ({ form: { ...st.form, name: v } })); },
+      setLocation: e => { const v = e.target.value; this.setState(st => ({ form: { ...st.form, location: v } })); },
+      reminderOpts: [15, 30, 60].map(v => ({
+        key: v, label: v + ' min', pick: () => this.setState(st => ({ form: { ...st.form, reminder: v } })),
+        style: {
+          flex: 1, borderRadius: '999px', cursor: 'pointer', fontFamily: 'inherit',
+          fontSize: '13px', fontWeight: 500, border: '1px solid transparent',
+          background: s.form.reminder === v ? 'var(--background)' : 'transparent',
+          color: s.form.reminder === v ? 'var(--foreground)' : 'var(--muted-foreground)',
+          boxShadow: s.form.reminder === v ? 'var(--shadow-sm)' : 'none'
+        }
+      })),
+      save: () => this.setState(st => ({
+        screen: st.from || 'detail', toast: 'Changes saved',
+        machines: st.machines.map(m => m.id === st.sel ? { ...m, name: st.form.name, location: st.form.location, reminder: st.form.reminder } : m)
+      }), () => this.flash()),
+
+      noAlerts: s.notifs.length === 0,
+      alertsLine: live.length ? live.length + ' open · ' + (s.notifs.length - live.length) + ' resolved' : 'Nothing open',
+      alerts: s.notifs.map(n => {
+        const done = n.status === 'resolved';
+        return {
+          key: n.key, title: n.name + ' — ' + (done ? 'Resolved' : 'Low water'), time: n.time, live: n.status === 'active',
+          note: done ? 'Water restored at ' + n.resolvedAt
+            : n.status === 'snoozed' ? 'Reminder set — you will be notified again'
+            : n.status === 'acknowledged' ? 'Acknowledged — waiting for refill' : 'Refill required',
+          ack: this.ack(n.key), snooze: this.snooze(n.key),
+          dot: { width: '8px', height: '8px', borderRadius: '999px', flex: 'none', background: done ? OK : BAD },
+          card: {
+            padding: '18px', borderRadius: 'var(--radius-card)', marginBottom: '12px',
+            background: done ? 'var(--card)' : 'var(--destructive-tint)',
+            boxShadow: 'var(--shadow-md), var(--ring-hairline)'
+          }
+        };
+      }),
+
+      banner: bn ? { title: bn.name + ' — Low water', note: 'Refill required', ack: this.ack(bn.key), snooze: this.snooze(bn.key) } : null
+    };
+  }
+}
+</script>
+</body>
+</html>
